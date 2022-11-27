@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable } from "react-native";
 import {ResponseType, useAuthRequest} from 'expo-auth-session';
+import SpotifyWebAPI from 'spotify-web-api-js';
 
 
 export default function HomeScreen({navigation}) {
@@ -25,16 +26,36 @@ export default function HomeScreen({navigation}) {
             "user-read-private",
         ],
         usePKCE: false,
-        redirectUri: "exp://192.168.0.37:19000",
+        redirectUri: "exp://10.127.235.72:19000",
     }, discovery);
     
     useEffect(() => {
         if(response?.type === "success") {
             const {access_token} = response.params;
             console.log('accessToken', access_token);
+
+            getUserPlaylists(access_token);
         }
     }, [response])
+
+    const getUserPlaylists = async (accessToken) => {
+        const sp = await getValidSPObj(accessToken);
+        const {id: userId} = await sp.getMe();
+        const {items: playlists} = await sp.getUserPlaylists(userId, {limit : 50});
+        
+        for (var i = 0; i < playlists.length; i++)
+            console.log(playlists[1]);
+        
+    }
     
+    const getValidSPObj = async (accessToken) => {
+        
+        
+        var sp = new SpotifyWebAPI();
+        await sp.setAccessToken(accessToken);
+        return sp;
+    }
+
     return (
         <View style = {styles.container}>
             
