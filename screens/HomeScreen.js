@@ -1,7 +1,9 @@
 import React, {useEffect} from 'react';
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable } from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable, Image, ImageBackground } from "react-native";
 import {ResponseType, useAuthRequest} from 'expo-auth-session';
+import logoIMG from '../assets/text.png';
+import backgroundIMG from "../assets/bg.png";
 
 
 export default function HomeScreen({navigation}) {
@@ -36,9 +38,13 @@ export default function HomeScreen({navigation}) {
     }, [response])
     
     return (
+        <ImageBackground source = {backgroundIMG} style = {styles.background}>
         <View style = {styles.container}>
+
             
             <StatusBar style = "auto" />
+
+            <Image source = {logoIMG}  style = {styles.logo} alt = "spotifyRecap"/>
       
             <TouchableOpacity style = {styles.loginButton} ><Text onPress={() => promptAsync()}style = {styles.text}>Play</Text></TouchableOpacity>
                 
@@ -46,15 +52,16 @@ export default function HomeScreen({navigation}) {
             <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps")}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
             
         
-       
+
         </View>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
     container : {
         flex: 1,
-        backgroundColor: '#404040',
+        //backgroundColor: '#404040',
         alignItems: 'center',
         justifyContent: 'center',
         
@@ -76,6 +83,18 @@ const styles = StyleSheet.create({
         paddingBottom : 5,
         borderRadius : 20 
         
+    },
+
+    logo : {
+        alignItems: 'center',
+        marginLeft: 20,
+        height: 500,
+        width: 500,
+        marginTop : -200,
+    },
+    background : {
+        width: '100%',
+        height: '100%'
     },
     text : {
         
