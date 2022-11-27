@@ -35,6 +35,7 @@ export default function HomeScreen({navigation}) {
             console.log('accessToken', access_token);
 
             getUserPlaylists(access_token);
+            return () =>{access_token};
         }
     }, [response])
 
@@ -64,7 +65,7 @@ export default function HomeScreen({navigation}) {
             <TouchableOpacity style = {styles.loginButton} ><Text onPress={() => promptAsync()}style = {styles.text}>Play</Text></TouchableOpacity>
                 
             
-            <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps")}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
+            <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps", {paramKey: promptAsync})}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
             
         
        
