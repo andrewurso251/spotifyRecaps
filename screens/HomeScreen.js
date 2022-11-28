@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable } from "react-native";
 import {ResponseType, useAuthRequest} from 'expo-auth-session';
 import SpotifyWebAPI from 'spotify-web-api-js';
-
+import axios from 'axios';
 
 export default function HomeScreen({navigation}) {
     const discovery = {
@@ -33,21 +33,89 @@ export default function HomeScreen({navigation}) {
         if(response?.type === "success") {
             const {access_token} = response.params;
             console.log('accessToken', access_token);
-
-            getUserPlaylists(access_token);
-            return () =>{access_token};
+            value = access_token;
+            getRecentlyPlayed();
+            getTopTracks();
+            getTopArtists();
+            console.log("ready");
         }
     }, [response])
+    let value = "";
+    
+    
 
-    const getUserPlaylists = async (accessToken) => {
-        const sp = await getValidSPObj(accessToken);
-        const {id: userId} = await sp.getMe();
-        const {items: playlists} = await sp.getUserPlaylists(userId, {limit : 50});
+    let topArtists = [];
+    let topArtistsPopularity = [];
+    let topArtistsGenre = [];
+    let topTracks = [];
+    let topTracksAlbum = [];
+    let topTracksPopularity = [];
+    let recentlyPlayed = [];
+    let recentlyPlayedAlbum = [];
+    let recentlyPlayedPopularity = [];
+
+
+    const getTopArtists = async () => {
         
-        for (var i = 0; i < playlists.length; i++)
-            console.log(playlists[1]);
+        const {data} = await axios.get("https://api.spotify.com/v1/me/top/artists", {
+            headers: {
+                Authorization: `Bearer ${value}`
+            }
+            
+
+        })
+        for (var i = 0; i < 10; i++)
+        {
+            topArtistsGenre[i] = data.items[i].genres;
+            topArtistsPopularity[i] = data.items[0].popularity;
+            topArtists[i] = data.items[0].name;
+        }
+        
         
     }
+
+    const getTopTracks = async () => {
+        
+        const {data} = await axios.get("https://api.spotify.com/v1/me/top/tracks?time_range=short_term", {
+            headers: {
+                Authorization: `Bearer ${value}`
+            }
+            
+
+
+        })
+        
+        for (var i = 0; i < 10; i++)
+        {
+            topTracks[i] = data.items[i].name;
+            topTracksAlbum[i] = data.items[1].album.name;
+            topTracksPopularity[i] = data.items[1].popularity;
+        }
+
+
+        
+        //data.items[1].name data.items[1].album.name data.items[1].popularity
+    }
+
+    const getRecentlyPlayed = async () => {
+        
+        const {data} = await axios.get("https://api.spotify.com/v1/me/player/recently-played?limit=50", {
+            headers: {
+                Authorization: `Bearer ${value}`
+            }
+            
+
+        })
+        for (var i = 0; i < 50; i++)
+        {
+            recentlyPlayedPopularity[i] = data.items[i].track.popularity;
+            recentlyPlayed[i] = data.items[i].track.name;
+            recentlyPlayedAlbum[i] = data.items[i].track.album.name;
+
+        }
+        
+    }
+    
     
     const getValidSPObj = async (accessToken) => {
         
@@ -65,7 +133,7 @@ export default function HomeScreen({navigation}) {
             <TouchableOpacity style = {styles.loginButton} ><Text onPress={() => promptAsync()}style = {styles.text}>Play</Text></TouchableOpacity>
                 
             
-            <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps", {paramKey: promptAsync})}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
+            <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps", {top_tracks: topTracks, top_tracks_album: topTracksAlbum, top_tracks_popularity : topArtistsPopularity, top_artists : topArtists, top_artists_genre : topArtistsGenre, top_artists_popularity : topArtistsPopularity, recently_played : recentlyPlayed, recently_played_album : recentlyPlayedAlbum, recently_played_popularity : recentlyPlayedPopularity})}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
             
         
        
