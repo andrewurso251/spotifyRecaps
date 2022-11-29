@@ -1,11 +1,28 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable } from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable, Image, ImageBackground } from "react-native";
 import {ResponseType, useAuthRequest} from 'expo-auth-session';
 import SpotifyWebAPI from 'spotify-web-api-js';
 import axios from 'axios';
+import logoIMG from '../assets/text.png';
+//import backgroundIMG from "../assets/bg.png";
+
 
 export default function HomeScreen({navigation}) {
+    const [myLoginText, setMyLoginText] = useState("Log in!");
+    const [goButtonState, setGoButtonState] = useState(true);
+    const [loginButtonState, setLoginButtonState] = useState(false);
+    const [myGoText, setMyGoText] = useState("Please log in first!");
+    const [topArtists, setTopArtists] = useState([]);
+    const [topArtistsPopularity, setTopArtistsPopularity] = useState([]);
+    const [topArtistsGenre, setTopArtistsGenre] = useState([]);
+    const [recentlyPlayedPopularity, setRecentlyPlayedPopularity] = useState([]);
+    const [recentlyPlayed, setRecentlyPlayed] = useState([]);
+    const [recentlyPlayedAlbum, setRecentlyPlayedAlbum] = useState([]);
+    const [topTracks, setTopTracks] = useState([]);
+    const [topTracksAlbum, setTopTracksAlbum] = useState([]);
+    const [topTracksPopularity, setTopTracksPopularity] = useState([]);
+
     const discovery = {
         authorizationEndpoint: "https://accounts.spotify.com/authorize",
         tokenEndpoint : "https://accounts.spotify.com/api/token",
@@ -37,22 +54,26 @@ export default function HomeScreen({navigation}) {
             getRecentlyPlayed();
             getTopTracks();
             getTopArtists();
-            console.log("ready");
+            
+            
+            
+            
+            
         }
     }, [response])
     let value = "";
+    var loginDisable = true;
     
+    var loginText = "Login!";
+    var goText = "Please login first!"
     
 
-    let topArtists = [];
-    let topArtistsPopularity = [];
-    let topArtistsGenre = [];
-    let topTracks = [];
-    let topTracksAlbum = [];
-    let topTracksPopularity = [];
-    let recentlyPlayed = [];
-    let recentlyPlayedAlbum = [];
-    let recentlyPlayedPopularity = [];
+    
+    
+    
+    
+    
+   
 
 
     const getTopArtists = async () => {
@@ -66,9 +87,10 @@ export default function HomeScreen({navigation}) {
         })
         for (var i = 0; i < 10; i++)
         {
-            topArtistsGenre[i] = data.items[i].genres;
-            topArtistsPopularity[i] = data.items[0].popularity;
-            topArtists[i] = data.items[0].name;
+            
+            setTopArtists((topA) => [...topA, data.items[i].name]);
+            setTopArtistsPopularity((topArtistsPop) => [...topArtistsPop, data.items[i].popularity]);
+            setTopArtistsGenre((topArtistsG) => [...topArtistsG, data.items[i].genres]);
         }
         
         
@@ -85,14 +107,19 @@ export default function HomeScreen({navigation}) {
 
         })
         
+        
+        
         for (var i = 0; i < 10; i++)
         {
-            topTracks[i] = data.items[i].name;
-            topTracksAlbum[i] = data.items[1].album.name;
-            topTracksPopularity[i] = data.items[1].popularity;
+            setTopTracks((topT) => [...topT, data.items[i].name]);
+            setTopTracksPopularity((topTracksPop) => [...topTracksPop, data.items[i].popularity]);
+            setTopTracksAlbum((topTracksA) => [...topTracksA, data.items[i].album.name]);
+            //topTracks.push(data.items[i].name);
+            //topTracksAlbum.push(data.items[i].album.name);
+            //topTracksPopularity.push(data.items[i].popularity);
         }
 
-
+        
         
         //data.items[1].name data.items[1].album.name data.items[1].popularity
     }
@@ -108,11 +135,14 @@ export default function HomeScreen({navigation}) {
         })
         for (var i = 0; i < 50; i++)
         {
-            recentlyPlayedPopularity[i] = data.items[i].track.popularity;
-            recentlyPlayed[i] = data.items[i].track.name;
-            recentlyPlayedAlbum[i] = data.items[i].track.album.name;
-
+            setRecentlyPlayedPopularity((recentlyPlayedPop) => [...recentlyPlayedPop, data.items[i].track.popularity]);
+            setRecentlyPlayed((recentlyP) => [...recentlyP, data.items[i].track.name]);
+            setRecentlyPlayedAlbum((recentlyPlayedA) => [...recentlyPlayedA, data.items[i].track.album.name]);
+            //recentlyPlayed.push(data.items[i].track.name);
+            //recentlyPlayedAlbum.push(data.items[i].track.album.name);
+            
         }
+        
         
     }
     
@@ -124,16 +154,23 @@ export default function HomeScreen({navigation}) {
         await sp.setAccessToken(accessToken);
         return sp;
     }
+    const go = () => {
 
+        promptAsync();
+        setMyLoginText("Logged in!");
+        setGoButtonState(false);
+        setMyGoText("Generate my Recap!");
+        setLoginButtonState(true);
+    }
     return (
         <View style = {styles.container}>
             
             <StatusBar style = "auto" />
-      
-            <TouchableOpacity style = {styles.loginButton} ><Text onPress={() => promptAsync()}style = {styles.text}>Play</Text></TouchableOpacity>
+            <Image source = {logoIMG}  style = {styles.logo} alt = "spotifyRecap"/>
+            <TouchableOpacity  disabled = {loginButtonState}  style = {styles.loginButton}  onPress={() => go()}><Text style = {styles.text}>{myLoginText}</Text></TouchableOpacity>
                 
             
-            <TouchableOpacity style = {styles.goButton} onPress={() => navigation.navigate("Recaps", {top_tracks: topTracks, top_tracks_album: topTracksAlbum, top_tracks_popularity : topArtistsPopularity, top_artists : topArtists, top_artists_genre : topArtistsGenre, top_artists_popularity : topArtistsPopularity, recently_played : recentlyPlayed, recently_played_album : recentlyPlayedAlbum, recently_played_popularity : recentlyPlayedPopularity})}><Text style = {styles.text}>GO!</Text></TouchableOpacity>    
+                    <TouchableOpacity disabled = {goButtonState} style = {styles.goButton} onPress={() => navigation.navigate("Recaps", {top_tracks: {topTracks}, top_tracks_album: {topTracksAlbum}, top_tracks_popularity : {topTracksPopularity}, top_artists : {topArtists}, top_artists_genre : {topArtistsGenre}, top_artists_popularity : {topArtistsPopularity}, recently_played : {recentlyPlayed}, recently_played_album : {recentlyPlayedAlbum}, recently_played_popularity : {recentlyPlayedPopularity}})}><Text style = {styles.text}>{myGoText}</Text></TouchableOpacity>    
             
         
        
@@ -152,24 +189,32 @@ const styles = StyleSheet.create({
     loginButton : {
         alignItems: 'center',
         backgroundColor: "#1DB954",
-        width : 100,
-        paddingTop : 5,
-        paddingBottom : 5,
-        borderRadius : 20        
+        width : 200,
+        paddingTop : 20,
+        paddingBottom : 20,
+        borderRadius : 30        
+    },
+    logo : {
+        alignItems: 'center',
+        marginLeft: 20,
+        height: 500,
+        width: 500,
+        marginTop : -200,
     },
     goButton : {
         marginTop: 20,
         alignItems: 'center',
         backgroundColor: "black",
-        width : 100,
-        paddingTop : 5,
-        paddingBottom : 5,
-        borderRadius : 20 
+        width : 200,
+        paddingTop : 20,
+        paddingBottom : 20,
+        borderRadius : 30     
         
     },
     text : {
         
         color : 'white',
         
+        fontSize: 18,
     }
 });
