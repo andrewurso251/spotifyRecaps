@@ -16,7 +16,7 @@ export default function App() {
   const LoadFonts = async () => {
     await useFonts();
   };
-
+  // loads fonts for the app
   if (!IsReady) {
     return (
       <AppLoading
@@ -28,6 +28,8 @@ export default function App() {
   }
 
   return (
+    // use react navigation NavigationContainer to control navigation for the app
+    // we can also control settings for the navigation display here
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name = "home" component = {HomeScreen} headerStyle = {{backgroundColor : "#404040"}} options = {{headerShown : false}}/>

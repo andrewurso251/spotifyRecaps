@@ -9,6 +9,7 @@ import logoIMG from '../assets/text.png';
 
 
 export default function HomeScreen({navigation}) {
+    // variables for button text and user data
     const [myLoginText, setMyLoginText] = useState("Log in!");
     const [goButtonState, setGoButtonState] = useState(true);
     const [loginButtonState, setLoginButtonState] = useState(false);
@@ -23,15 +24,19 @@ export default function HomeScreen({navigation}) {
     const [topTracksAlbum, setTopTracksAlbum] = useState([]);
     const [topTracksPopularity, setTopTracksPopularity] = useState([]);
 
+    // urls for spotify authentication
     const discovery = {
         authorizationEndpoint: "https://accounts.spotify.com/authorize",
         tokenEndpoint : "https://accounts.spotify.com/api/token",
     };
     
+    // runs authorization to get access key when promptAsync() is called
     const [request, response, promptAsync] = useAuthRequest({
         responseType : ResponseType.Token,
         clientId: "6502e57166614919aa7201a212331444",
         clientSecret : "7cf20c220dfb4476b2132a0a2fdaa683",
+
+        // determines what can be retreived from the web API
         scopes: [
             "user-read-currently-playing",
             "user-read-recently-played",
@@ -43,9 +48,12 @@ export default function HomeScreen({navigation}) {
             "user-read-private",
         ],
         usePKCE: false,
-        redirectUri: "exp://10.127.235.72:19000",
+
+        // redirect url currently set to run on android
+        redirectUri: 'exp://localhost:19000/--/',
     }, discovery);
     
+    // stores access token locally and retreives userData from the web API, runs when getAsync() is called
     useEffect(() => {
         if(response?.type === "success") {
             const {access_token} = response.params;
@@ -62,10 +70,6 @@ export default function HomeScreen({navigation}) {
         }
     }, [response])
     let value = "";
-    var loginDisable = true;
-    
-    var loginText = "Login!";
-    var goText = "Please login first!"
     
 
     
@@ -75,7 +79,7 @@ export default function HomeScreen({navigation}) {
     
    
 
-
+    // gets users top artists with an axios request
     const getTopArtists = async () => {
         
         const {data} = await axios.get("https://api.spotify.com/v1/me/top/artists", {
@@ -95,7 +99,7 @@ export default function HomeScreen({navigation}) {
         
         
     }
-
+    // gets users top tracks with an axios request
     const getTopTracks = async () => {
         
         const {data} = await axios.get("https://api.spotify.com/v1/me/top/tracks?time_range=short_term", {
@@ -123,7 +127,7 @@ export default function HomeScreen({navigation}) {
         
         //data.items[1].name data.items[1].album.name data.items[1].popularity
     }
-
+    // get recently played tracks with an axios request
     const getRecentlyPlayed = async () => {
         
         const {data} = await axios.get("https://api.spotify.com/v1/me/player/recently-played?limit=50", {
@@ -147,13 +151,7 @@ export default function HomeScreen({navigation}) {
     }
     
     
-    const getValidSPObj = async (accessToken) => {
-        
-        
-        var sp = new SpotifyWebAPI();
-        await sp.setAccessToken(accessToken);
-        return sp;
-    }
+    // holds promptAsync() so it can be called alongside of a few other things when the login button is pressed
     const go = () => {
 
         promptAsync();

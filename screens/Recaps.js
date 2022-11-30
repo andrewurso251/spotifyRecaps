@@ -16,7 +16,7 @@ export default function Recaps({ navigation, route}) {
     let recentlyPlayedPopularity = route.params.recently_played_popularity.recentlyPlayedPopularity.recentlyPlayedPopularity;
     
     
-
+    // variables holding the facts that will be displayed
     const [factOne, setFactOne] = useState("Loading!");
     const [factTwo, setFactTwo] = useState("Loading!");
     const [factThree, setFactThree] = useState("Loading!");
@@ -25,8 +25,8 @@ export default function Recaps({ navigation, route}) {
    
     
     
-
-    const getFacts = () => {// 20 choose five 15,504 unique combos!
+    // gets five random facts using the data passed through from the previous screen
+    const getFacts = () => {// 15 choose five 3003 unique combos!
         var used = [];
         for (var i = 0; i < 5; i++)
         {
@@ -291,7 +291,7 @@ export default function Recaps({ navigation, route}) {
         
     }
     useEffect(() => {
-        // write your code here, it's like componentWillMount
+        // gets facts on screen load
         getFacts();
         console.log(factOne, factTwo, factThree, factFour, factFive);
         console.log(factFour);
